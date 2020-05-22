@@ -21,23 +21,11 @@ function Remove-DesiredTasks {
         $TaskToRemove,
         [Parameter(Mandatory = $True)]
         [ValidateSet("yes", "no")]
-        $Process,
-        $Credential
+        $Process
     )
     switch ($Process) {
         "yes" {
-            if ($null -ne $credential) {
-                $scriptblock = {
-                    $args[0] = $TaskToRemove
-                    #$TaskToRemove | Unregister-ScheduledTask -confirm:$false
-                    Write-Output "Did stuff"
-                }
-                Start-Job -ScriptBlock $scriptblock -ArgumentList ($TaskToRemove) -Credential $Credential
-            }
-            else {
-                $TaskToRemove | Unregister-ScheduledTask -confirm:$false -WhatIf
-            }
-
+            $TaskToRemove | Unregister-ScheduledTask -confirm:$false
         }
         "no" {
             return
