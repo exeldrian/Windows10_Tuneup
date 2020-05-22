@@ -1,3 +1,5 @@
+
+
 # Get the ID and security principal of the current user account
 $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = new-object System.Security.Principal.WindowsPrincipal($myWindowsID)
@@ -31,26 +33,37 @@ else {
     exit
 }
 
-    #Import Modules
-    Import-module (Join-Path $PSScriptRoot "/modules/win10TuneUp.psd1") -force
+Add-Type -AssemblyName System.Windows.Forms
 
-    #List of available tasks
-    $tasks = Get-ScheduledTask | Where { $_.TaskPath -notlike "\Microsoft\*" }
+#Import Modules
+Import-module (Join-Path $PSScriptRoot "/modules/win10TuneUp.psd1") -force
 
 
+
+
+#Check if task was removed
+$tasks = Get-ScheduledTask | Where { $_.TaskName -eq $ans }
+if ($tasks.count -eq 0) {
+    Write-Output "Task was removed"
+}
+else {
+    $tasks
+}
+
+$Button1_Click = {
     #gather task object
     $taskToRemove = $tasks.Where( { $_.taskname -eq $ans })
-
     #creds = Get-Credential
     Remove-DesiredTasks -TaskToRemove $taskToRemove -Process "yes" # Perform task removal
+}
 
-    #Check if task was removed
-    $tasks = Get-ScheduledTask | Where { $_.TaskName -eq $ans }
-    if ($tasks.count -eq 0) {
-        Write-Output "Task was removed"
-    }
-    else {
-        $tasks
-    }
+$Form1_Load = {
+    #List of available tasks
+    $tasks = Get-ScheduledTask | Where { $_.TaskPath -notlike "\Microsoft\*" }
+    $checkedlistbox1.items = $tasks
 
-    Pause  #Don't want other window to close.
+
+
+}
+. (Join-Path $PSScriptRoot 'win10tuneup.designer.designer.ps1')
+$Form1.ShowDialog()
