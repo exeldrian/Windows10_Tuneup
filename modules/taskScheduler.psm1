@@ -21,11 +21,23 @@ function Remove-DesiredTasks {
         $TaskToRemove,
         [Parameter(Mandatory = $True)]
         [ValidateSet("yes", "no")]
-        $Process
+        $Process,
+        $Credential
     )
     switch ($Process) {
         "yes" {
-            $TaskToRemove | Unregister-ScheduledTask -confirm:$false
+            if ($null -ne $credential) {
+                $scriptblock = {
+                    $args[0] = $TaskToRemove
+                    #$TaskToRemove | Unregister-ScheduledTask -confirm:$false
+                    Write-Output "Did stuff"
+                }
+                Start-Job -ScriptBlock $scriptblock -ArgumentList ($TaskToRemove) -Credential $Credential
+            }
+            else {
+                $TaskToRemove | Unregister-ScheduledTask -confirm:$false -WhatIf
+            }
+
         }
         "no" {
             return
@@ -34,21 +46,3 @@ function Remove-DesiredTasks {
     }
 
 }
-
-$keepTasks = "Backup" # edit this to determine which tasks to keep
-$tasks = Test-DesiredTasks -TasksToKeep $keepTasks # Determine tasks
-
-Write-Output $tasks.TaskName # Make selections
-do { $ans = Read-Host "Would you like to unregister all of these?  (Yes/No)" }
-until($ans -eq "yes" -or $ans -eq "no" -or $ans -eq "y" -or $ans -eq "n")
-
-switch ($ans) {
-    "y" {
-        $ans = "yes"
-    }
-    "n" {
-        $ans = "no"
-    }
-}
-
-Remove-DesiredTasks -TaskToRemove $tasks -Process $ans # Perform task removal
