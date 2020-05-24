@@ -1,3 +1,4 @@
+<#
 # Get the ID and security principal of the current user account
 $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = new-object System.Security.Principal.WindowsPrincipal($myWindowsID)
@@ -28,6 +29,13 @@ else {
     [System.Diagnostics.Process]::Start($newProcess);
 
     # Exit from the current, unelevated, process
+    exit
+}
+
+#>
+
+if(-not (Test-RunningCredentials)){
+    msg console "RUN AS ADMIN"
     exit
 }
 
