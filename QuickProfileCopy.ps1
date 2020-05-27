@@ -24,22 +24,23 @@ switch ($direction) {
     "b" { # backup
         $dest = Read-Host("Specify a destination path. If a drive letter, include ':'. If a path, do not include '\'  ") # Set destination path
 
-        $sources = Get-ChildItem -Path C:\Users  # Generate an array containing user profiles currently on the PC
+        $sources = Get-ChildItem -Path C:\Users -Directory  # Generate an array containing user profiles currently on the PC
 
         foreach ($source in $sources) { # Do the thing
 
-            $userDir = "C:\Users\" + $source
-            robocopy.exe /xo /v /e/ /w:1 /r:1 $userDir\Desktop $dest\$source\Desktop
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Documents $dest\$source\Documents
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Favorites $dest\$source\Favorites
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Contacts $dest\$source\Contacts
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\AppData\Local\Microsoft\Outlook $dest\$source\AppData\Local\Microsoft\Outlook
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Downloads $dest\$source\Downloads
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Pictures $dest\$source\Pictures
-            robocopy.exe /xo /v /e /w:1 /r:1 $userDir\Videos $dest\$source\Videos
+            #gotta grab a username from $source
+
+            robocopy.exe /xo /v /e/ /w:1 /r:1 $source\Desktop $dest\$userName\Desktop
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Documents $dest\$userName\Documents
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Favorites $dest\$userName\Favorites
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Contacts $dest\$userName\Contacts
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\AppData\Local\Microsoft\Outlook $dest\$userName\AppData\Local\Microsoft\Outlook
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Downloads $dest\$userName\Downloads
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Pictures $dest\$userName\Pictures
+            robocopy.exe /xo /v /e /w:1 /r:1 $source\Videos $dest\$userName\Videos
         }
 
-        Write-Host "All done! $userDir copied to $dest\$source!"
+        Write-Host "All done! $source copied to $dest\$source!"
     }
     "r" { # Restore
 
