@@ -28,19 +28,20 @@ switch ($direction) {
 
         $sources = Get-ChildItem -Path C:\Users -Directory | Where-Object { $_ -notlike "C:\Users\Public"} # Generate an array containing user profiles currently on the PC
 
+        # print out the size of this impending copy job
         $size = Get-ChildItem "$sources" -Recurse | Where-Object {$_ -notlike "AppData"} | Measure-Object -Property Length -Sum
         $sizeGB = "{0:N1}" -f ($size.sum/1GB)
-
-        Clear-Host
+        Clear-Host # readability is important
         Write-Host("You are about to copy $sizeGB from : ")
         $sources.name
 
+        # confirm pls
         do { $go = Read-Host("Proceed? y/n") }
         until($go -eq "y" -or $go -eq "n")
 
-        switch ($go) {
+        switch ($go) { # do I run?
 
-            "y" {
+            "y" { # yep
                 foreach ($source in $sources) { # Do the thing
 
                     $userName = Split-Path "$source" -Leaf # grabs just the last folder in the path
@@ -60,8 +61,9 @@ switch ($direction) {
 
                 }
             
-            "n" {
+            "n" { # nope
 
+                # inform the user they cancelled, because if we don't they'll say the script didn't work!
                 Clear-Host
                 Write-Host "Operation cancelled by User."
                 
