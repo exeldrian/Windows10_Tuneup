@@ -26,23 +26,47 @@ switch ($direction) {
     "b" { # backup
         $dest = Read-Host("Specify a destination path. If a drive letter, include ':'. If a path, do not end with '\'  ") # Set destination path
 
-        $sources = Get-ChildItem -Path C:\Users -Directory  # Generate an array containing user profiles currently on the PC
+        $sources = Get-ChildItem -Path C:\Users -Directory | Where-Object { $_ -notlike "C:\Users\Public"} # Generate an array containing user profiles currently on the PC
 
-        foreach ($source in $sources) { # Do the thing
+        $size = Get-ChildItem "$sources" -Recurse | Where-Object {$_ -notlike "AppData"} | Measure-Object -Property Length -Sum
+        $sizeGB = "{0:N1}" -f ($size.sum/1GB)
 
-            $userName = Split-Path "$source" -Leaf # grabs just the last folder in the path
+        Clear-Host
+        Write-Host("You are about to copy $sizeGB from : ")
+        $sources.name
 
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Desktop $dest\$userName\Desktop
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Documents $dest\$userName\Documents
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Favorites $dest\$userName\Favorites
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Contacts $dest\$userName\Contacts
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\AppData\Local\Microsoft\Outlook $dest\$userName\AppData\Local\Microsoft\Outlook
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Downloads $dest\$userName\Downloads
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Pictures $dest\$userName\Pictures
-            robocopy.exe /xo /v /e /w:1 /r:1 $source\Videos $dest\$userName\Videos
+        do { $go = Read-Host("Proceed? y/n") }
+        until($go -eq "y" -or $go -eq "n")
+
+        switch ($go) {
+
+            "y" {
+                foreach ($source in $sources) { # Do the thing
+
+                    $userName = Split-Path "$source" -Leaf # grabs just the last folder in the path
+
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Desktop $dest\$userName\Desktop
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Documents $dest\$userName\Documents
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Favorites $dest\$userName\Favorites
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Contacts $dest\$userName\Contacts
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\AppData\Local\Microsoft\Outlook $dest\$userName\AppData\Local\Microsoft\Outlook
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Downloads $dest\$userName\Downloads
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Pictures $dest\$userName\Pictures
+                    robocopy.exe /xo /v /e /w:1 /r:1 $source\Videos $dest\$userName\Videos
+                    }
+            
+                Clear-Host
+                Write-Host "All done! $source copied to $dest\$source!"
+
+                }
+            
+            "n" {
+
+                Clear-Host
+                Write-Host "Operation cancelled by User."
+                
+            }
         }
-
-        Write-Host "All done! $source copied to $dest\$source!"
     }
     "r" { # Restore
 
