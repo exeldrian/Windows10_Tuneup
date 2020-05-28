@@ -30,7 +30,7 @@ switch ($direction) {
 
         foreach ($source in $sources) { # Do the thing
 
-            $userName = Split-Path "$source" -Leaf
+            $userName = Split-Path "$source" -Leaf # grabs just the last folder in the path
 
             robocopy.exe /xo /v /e /w:1 /r:1 $source\Desktop $dest\$userName\Desktop
             robocopy.exe /xo /v /e /w:1 /r:1 $source\Documents $dest\$userName\Documents
@@ -46,14 +46,14 @@ switch ($direction) {
     }
     "r" { # Restore
 
-        $oldUserPath = Read-Host("Enter a path to the user backup. I.E. D:\Backup\Bob ")
+        $oldUserPath = Read-Host("Enter a path to the user backup. I.E. D:\Backup\Bob ") # where am I grabbing the backup from
 
-        $newUser = Read-Host("Enter the target user profile. I.E. Timmy ")
-        $copyTo = "C:\Users\$newUser"
+        $newUser = Read-Host("Enter the target user profile. I.E. Timmy ") # where am I putting it on the new PC
+        $copyTo = "C:\Users\$newUser" # set up a string for the target directory
     
-        robocopy.exe /e /v /xo /w:1 /r:1 $oldUserPath $copyTo
+        robocopy.exe /e /v /xo /w:1 /r:1 $oldUserPath $copyTo # do the thing
         
-        Write-Host "All done! $oldUserPath copied to $copyTo!"
+        Write-Host "All done! $oldUserPath copied to $copyTo!" # all done
     }
 
 }
